@@ -19,13 +19,18 @@ type content []contentRow
 // ReadCSV file from first argument
 func ReadCSV() {
 	file, err := os.Open(os.Args[1])
-	filename := "public/" + (os.Args[1]) + ".json"
 
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 
+	// create public folder if not exist
+	if _, err := os.Stat("public"); os.IsNotExist(err) {
+		os.Mkdir("public", 0775)
+	}
+
+	filename := "public/" + (os.Args[1]) + ".json"
 	h := header{}
 	c := content{}
 	reader := csv.NewReader(bufio.NewReader(file))
