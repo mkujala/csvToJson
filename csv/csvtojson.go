@@ -1,4 +1,4 @@
-package utils
+package csv
 
 import (
 	"bufio"
@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -17,7 +18,7 @@ type contentRow map[string]interface{}
 type content []contentRow
 
 // ReadCSV file from first argument
-func ReadCSV() {
+func ReadCSV() ([]byte, string) {
 	file, err := os.Open(os.Args[1])
 
 	if err != nil {
@@ -25,12 +26,9 @@ func ReadCSV() {
 		os.Exit(1)
 	}
 
-	// create public folder if not exist
-	if _, err := os.Stat("public"); os.IsNotExist(err) {
-		os.Mkdir("public", 0775)
-	}
+	curDir := currentDir()
 
-	filename := "public/" + (os.Args[1]) + ".json"
+	filename := curDir + "/" + (os.Args[1]) + ".json"
 	h := header{}
 	c := content{}
 	reader := csv.NewReader(bufio.NewReader(file))
@@ -68,10 +66,23 @@ func ReadCSV() {
 		}
 	}
 	r, err := json.Marshal(c)
-	saveToFile(filename, r)
-	fmt.Println(filename, "saved to disk.")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return r, filename
 }
 
-func saveToFile(filename string, r []byte) error {
+func SaveToJsonFile(filename string, r []byte) error {
 	return ioutil.WriteFile(filename, r, 0666)
+	// saveToFile(filename, r)
+	// fmt.Println(filename, "saved to disk.")
+}
+
+// get current dir (dir where program was ran)
+func currentDir() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return dir
 }
