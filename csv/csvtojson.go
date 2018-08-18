@@ -34,7 +34,6 @@ func ReadCSV() ([]byte, string) {
 	reader := csv.NewReader(bufio.NewReader(file))
 
 	for i := 0; ; i++ {
-
 		// intialize new row on every iteration
 		cr := contentRow{}
 		line, error := reader.Read()
@@ -51,17 +50,19 @@ func ReadCSV() ([]byte, string) {
 			for _, name := range line {
 				h = append(h, name)
 			}
-		} else {
-			for j, value := range line {
+			continue
+		}
 
-				// try to convert string->float, if no err save as float else save as string
-				floatVal, err := strconv.ParseFloat(value, 64)
-				if err == nil {
-					cr[h[j]] = floatVal
-				} else {
-					cr[h[j]] = value
-				}
+		// iterate through csv content rows
+		for j, value := range line {
+
+			// try to convert string->float, if no err save as float else save as string
+			floatVal, err := strconv.ParseFloat(value, 64)
+			if err == nil {
+				cr[h[j]] = floatVal
+				continue
 			}
+			cr[h[j]] = value
 			c = append(c, cr)
 		}
 	}
@@ -72,10 +73,14 @@ func ReadCSV() ([]byte, string) {
 	return r, filename
 }
 
-func SaveToJsonFile(filename string, r []byte) error {
-	return ioutil.WriteFile(filename, r, 0666)
-	// saveToFile(filename, r)
-	// fmt.Println(filename, "saved to disk.")
+// SaveToJSONFile saves Marshalled json to disk
+func SaveToJSONFile(filename string, r []byte) error {
+	err := ioutil.WriteFile(filename, r, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(filename, "saved to disk.")
+	return err
 }
 
 // get current dir (dir where program was ran)
@@ -85,4 +90,12 @@ func currentDir() string {
 		log.Fatal(err)
 	}
 	return dir
+}
+
+func checkFileType() {
+	// waiting for implementation
+}
+
+func removeExtension() {
+	// waiting for implementation
 }

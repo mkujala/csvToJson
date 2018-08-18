@@ -16,5 +16,5 @@ func main() {
 		os.Exit(1)
 	}
 	csvFile, filename := csv.ReadCSV()
-	csv.SaveToJsonFile(filename, csvFile)
+	csv.SaveToJSONFile(filename, csvFile)
 }
