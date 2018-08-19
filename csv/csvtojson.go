@@ -9,8 +9,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type header []string
@@ -19,7 +21,11 @@ type content []contentRow
 
 // ReadCSV file from first argument
 func ReadCSV() ([]byte, string) {
-	file, err := os.Open(os.Args[1])
+	inputFilename := os.Args[1]
+	checkFileType(inputFilename)
+	outputFilename := removeExtension(inputFilename)
+
+	file, err := os.Open(inputFilename)
 
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -28,7 +34,7 @@ func ReadCSV() ([]byte, string) {
 
 	curDir := currentDir()
 
-	filename := curDir + "/" + (os.Args[1]) + ".json"
+	filename := curDir + "/" + (outputFilename) + ".json"
 	h := header{}
 	c := content{}
 	reader := csv.NewReader(bufio.NewReader(file))
@@ -55,27 +61,27 @@ func ReadCSV() ([]byte, string) {
 
 		// iterate through csv content rows
 		for j, value := range line {
-
 			// try to convert string->float, if no err save as float else save as string
 			floatVal, err := strconv.ParseFloat(value, 64)
 			if err == nil {
 				cr[h[j]] = floatVal
-				continue
+			} else {
+				cr[h[j]] = value
 			}
-			cr[h[j]] = value
-			c = append(c, cr)
 		}
+		// append new row to json array
+		c = append(c, cr)
 	}
-	r, err := json.Marshal(c)
+	json, err := json.Marshal(c)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return r, filename
+	return json, filename
 }
 
 // SaveToJSONFile saves Marshalled json to disk
-func SaveToJSONFile(filename string, r []byte) error {
-	err := ioutil.WriteFile(filename, r, 0666)
+func SaveToJSONFile(filename string, json []byte) error {
+	err := ioutil.WriteFile(filename, json, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,10 +98,13 @@ func currentDir() string {
 	return dir
 }
 
-func checkFileType() {
-	// waiting for implementation
+func checkFileType(fn string) {
+	if filepath.Ext(fn) != ".csv" {
+		fmt.Println("Error: input file type must be .csv")
+		os.Exit(1)
+	}
 }
 
-func removeExtension() {
-	// waiting for implementation
+func removeExtension(fn string) string {
+	return strings.TrimSuffix(fn, path.Ext(fn))
 }

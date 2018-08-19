@@ -15,6 +15,6 @@ func main() {
 		fmt.Println("Give one .csv file as an argument!")
 		os.Exit(1)
 	}
-	csvFile, filename := csv.ReadCSV()
-	csv.SaveToJSONFile(filename, csvFile)
+	json, filename := csv.ReadCSV()
+	csv.SaveToJSONFile(filename, json)
 }
