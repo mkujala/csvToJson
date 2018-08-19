@@ -17,26 +17,27 @@ import (
 
 type header []string
 type contentRow map[string]interface{}
-type content []contentRow
+
+// Content is type for the []map that can be marshalled to json
+type Content []contentRow
 
 // ReadCSV file from first argument
-func ReadCSV() ([]byte, string) {
+func ReadCSV() (Content, string) {
 	inputFilename := os.Args[1]
 	checkFileType(inputFilename)
 	outputFilename := removeExtension(inputFilename)
 
 	file, err := os.Open(inputFilename)
-
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
+	defer file.Close()
 
 	curDir := currentDir()
-
 	filename := curDir + "/" + (outputFilename) + ".json"
 	h := header{}
-	c := content{}
+	data := Content{}
 	reader := csv.NewReader(bufio.NewReader(file))
 
 	for i := 0; ; i++ {
@@ -70,23 +71,31 @@ func ReadCSV() ([]byte, string) {
 			}
 		}
 		// append new row to json array
-		c = append(c, cr)
+		data = append(data, cr)
 	}
-	json, err := json.Marshal(c)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return json, filename
+	return data, filename
 }
 
 // SaveToJSONFile saves Marshalled json to disk
-func SaveToJSONFile(filename string, json []byte) error {
-	err := ioutil.WriteFile(filename, json, 0666)
+func SaveToJSONFile(filename string, c Content) {
+	bs, err := json.Marshal(c)
 	if err != nil {
 		log.Fatal(err)
 	}
+	err2 := ioutil.WriteFile(filename, bs, 0666)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
 	fmt.Println(filename, "saved to disk.")
-	return err
+}
+
+// PrintJSON makes pretty print of generated JSON
+func PrintJSON(c Content) {
+	prettyJSON, err := (json.MarshalIndent(c, "", "    "))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(prettyJSON))
 }
 
 // get current dir (dir where program was ran)
