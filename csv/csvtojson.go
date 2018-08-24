@@ -21,16 +21,15 @@ type contentRow map[string]interface{}
 // Content is type for the []map that can be marshalled to json
 type Content []contentRow
 
-// ReadCSV file from first argument
-func ReadCSV() (Content, string) {
+// Read file from first argument
+func Read() (Content, string) {
 	inputFilename := os.Args[1]
 	checkFileType(inputFilename)
 	outputFilename := removeExtension(inputFilename)
 
 	file, err := os.Open(inputFilename)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	defer file.Close()
 
@@ -43,13 +42,13 @@ func ReadCSV() (Content, string) {
 	for i := 0; ; i++ {
 		// intialize new row on every iteration
 		cr := contentRow{}
-		line, error := reader.Read()
+		line, err := reader.Read()
 
 		// break when end of file reached
-		if error == io.EOF {
+		if err == io.EOF {
 			break
-		} else if error != nil {
-			log.Fatal(error)
+		} else if err != nil {
+			log.Fatal(err)
 		}
 
 		// save csv's first row fields as header fields
@@ -109,8 +108,7 @@ func currentDir() string {
 
 func checkFileType(fn string) {
 	if filepath.Ext(fn) != ".csv" {
-		fmt.Println("Error: input file type must be .csv")
-		os.Exit(1)
+		log.Fatal("Error: input file type must be .csv")
 	}
 }
 

@@ -19,7 +19,7 @@ func main() {
 		fmt.Printf("Invalid flag \"%v\" after filename %v\n", os.Args[2], os.Args[1])
 		os.Exit(1)
 	}
-	data, filename := csv.ReadCSV()
+	data, filename := csv.Read()
 
 	if len(os.Args) == 3 {
 		csv.PrintJSON(data)
