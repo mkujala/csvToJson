@@ -56,7 +56,6 @@ func Read() (Content, string) {
 			for _, name := range line {
 				h = append(h, name)
 			}
-			continue
 		}
 
 		// iterate through csv content rows

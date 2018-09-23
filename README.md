@@ -8,5 +8,3 @@ git clone https://github.com/mkujala/csvToJson.git csv2json
 INSTALL: go install  
 USAGE: csv2json yourFile.csv  
 ```
-
-There is still a lot of room for improvement.
